@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — SMS{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Dashboard</h1>
+    <p class="text-muted">Welcome back! Here's your overview.</p>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card stat-blue">
+            <div class="stat-icon"><i class="fas fa-users"></i></div>
+            <div class="stat-info">
+                <div class="stat-number">{{ total }}</div>
+                <div class="stat-label">Total Students</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card stat-green">
+            <div class="stat-icon"><i class="fas fa-male"></i></div>
+            <div class="stat-info">
+                <div class="stat-number">{{ male }}</div>
+                <div class="stat-label">Male Students</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card stat-pink">
+            <div class="stat-icon"><i class="fas fa-female"></i></div>
+            <div class="stat-info">
+                <div class="stat-number">{{ female }}</div>
+                <div class="stat-label">Female Students</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card stat-orange">
+            <div class="stat-icon"><i class="fas fa-building"></i></div>
+            <div class="stat-info">
+                <div class="stat-number">{{ dept_count|length }}</div>
+                <div class="stat-label">Departments</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0"><i class="fas fa-chart-bar me-2"></i>Students per Department</h6>
+            </div>
+            <div class="card-body">
+                <canvas id="deptChart" height="120"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0"><i class="fas fa-chart-pie me-2"></i>Gender Distribution</h6>
+            </div>
+            <div class="card-body d-flex align-items-center justify-content-center">
+                <canvas id="genderChart" height="180"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="card-title mb-0"><i class="fas fa-clock me-2"></i>Recently Added</h6>
+        <a href="{{ url_for('students.student_list') }}" class="btn btn-sm btn-outline-primary">View All</a>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Department</th>
+                        <th>Year</th>
+                        <th>Email</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in recent %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="avatar-sm">{{ s.first_name[0] }}{{ s.last_name[0] }}</div>
+                                {{ s.first_name }} {{ s.last_name }}
+                            </div>
+                        </td>
+                        <td><span class="badge dept-badge">{{ s.department }}</span></td>
+                        <td>Year {{ s.year }}</td>
+                        <td>{{ s.email }}</td>
+                        <td>
+                            <a href="{{ url_for('students.student_detail', id=s.id) }}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-4">
+                            No students yet. <a href="{{ url_for('students.add_student') }}">Add one!</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const deptData = {{ dept_data | tojson }};
+const deptLabels = Object.keys(deptData);
+const deptValues = Object.values(deptData);
+
+new Chart(document.getElementById('deptChart'), {
+    type: 'bar',
+    data: {
+        labels: deptLabels,
+        datasets: [{
+            label: 'Students',
+            data: deptValues,
+            backgroundColor: ['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#f97316','#84cc16'],
+            borderRadius: 6,
+            borderSkipped: false
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+            y: { beginAtZero: true, ticks: { stepSize: 1 } },
+            x: { grid: { display: false } }
+        }
+    }
+});
+
+new Chart(document.getElementById('genderChart'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Male', 'Female', 'Other'],
+        datasets: [{
+            data: [{{ male }}, {{ female }}, {{ total - male - female }}],
+            backgroundColor: ['#3b82f6','#ec4899','#8b5cf6'],
+            borderWidth: 0
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { position: 'bottom' } }
+    }
+});
+</script>
+{% endblock %}

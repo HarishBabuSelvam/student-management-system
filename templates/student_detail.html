@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}{{ student.first_name }} {{ student.last_name }} — SMS{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-start flex-wrap gap-2">
+    <div>
+        <h1 class="page-title">Student Profile</h1>
+        <p class="text-muted">STU-{{ '%04d'|format(student.id) }}</p>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+        <button onclick="window.print()" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-print me-1"></i>Print
+        </button>
+        <a href="{{ url_for('students.student_pdf', id=student.id) }}"
+           class="btn btn-outline-danger btn-sm">
+            <i class="fas fa-file-pdf me-1"></i>Download PDF
+        </a>
+        <a href="{{ url_for('students.edit_student', id=student.id) }}"
+           class="btn btn-warning btn-sm">
+            <i class="fas fa-edit me-1"></i>Edit
+        </a>
+    </div>
+</div>
+
+<div class="print-header">
+    <h2>Sri Venkateswara College of Engineering</h2>
+    <h3>Student Profile</h3>
+    <hr>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-4">
+        <div class="card text-center">
+            <div class="card-body py-4">
+                <div class="avatar-lg mx-auto mb-3">
+                    {{ student.first_name[0] }}{{ student.last_name[0] }}
+                </div>
+                <h4 class="mb-1">{{ student.first_name }} {{ student.last_name }}</h4>
+                <p class="text-muted mb-2">{{ student.department }} — Year {{ student.year }}</p>
+                <span class="badge bg-primary">{{ student.gender }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card h-100">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-id-card me-2"></i>Student Details
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <div class="detail-item">
+                            <div class="detail-label">Student ID</div>
+                            <div class="detail-value">STU-{{ '%04d'|format(student.id) }}</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="detail-item">
+                            <div class="detail-label">Email</div>
+                            <div class="detail-value">{{ student.email }}</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="detail-item">
+                            <div class="detail-label">Phone</div>
+                            <div class="detail-value">{{ student.phone }}</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="detail-item">
+                            <div class="detail-label">Department</div>
+                            <div class="detail-value">{{ student.department }}</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="detail-item">
+                            <div class="detail-label">Date of Birth</div>
+                            <div class="detail-value">{{ student.date_of_birth or 'N/A' }}</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="detail-item">
+                            <div class="detail-label">Enrolled On</div>
+                            <div class="detail-value">{{ student.created_at.strftime('%B %d, %Y') }}</div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="detail-item">
+                            <div class="detail-label">Address</div>
+                            <div class="detail-value">{{ student.address or 'Not provided' }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
